@@ -1,9 +1,5 @@
 'use strict';
 
-const test = [1, 4, 7, 23, 76, 1, 2, 4, 50, 874, 417, 20, -6];
-insertionSort(test);
-console.log("Sorted :: " + test);
-
 /**
  * Sorts an array using the insertion sort algorithm.
  * 
