@@ -200,7 +200,7 @@ class MaxHeap {
      * @return The left child index in the inner array.
      */
     leftChild(i) {
-        return 2 * i + 1;
+        return (i << 1) + 1;
     }
 
     /**
@@ -209,7 +209,7 @@ class MaxHeap {
      * @return The right child index in the inner array.
      */
     rightChild(i) {
-        return 2 * i + 2;
+        return (i << 1) + 2;
     }
 
     /**
