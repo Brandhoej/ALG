@@ -12,10 +12,14 @@
  * 
  * @param {Array} arr
  *        The array to sort.
+ * @param {Function} cmp
+ *        Function for comparing the values a, b. a > b for increasing order.
+ * @return {Array}
+ *         the sorted array in the order specified by cmp.
  */
-function quickSort(arr) {
+function quickSort(arr, cmp) {
     /**
-     * The function used for the recursive calls.
+     * The function used for the recursive, calls.
      * 
      * Sorts a subarray delimited in arr by left and right (indices).
      * 
@@ -54,7 +58,7 @@ function quickSort(arr) {
             let i = left;
             /* Move through the sub array and create the partition */
             for(let j = left; j < right; j++) {
-                if(arr[j] <= pivot) {
+                if(cmp(arr[j], pivot)) {
                     /* Move it down to the "smaller than" partition */
                     swap(i, j);
                     i++;
