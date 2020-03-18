@@ -5,35 +5,38 @@
  * 
  * For all nodes i > 0 the parent is greater.
  */
-class MaxHeap {
+class Heap {
 
     /**
      * initializes this heap with a inner array and builds it.
      * 
      * @class
-     *        constructs a MaxHeap.
+     *        constructs a heap.
      * @param {Array} arr
-     *        The initial inner array of the max heap.
+     *        The initial inner array of the heap.
+     * @param {Function} cmp
+     *        Predicate for comparisions. heap (a, b) => a >= b.
      */
-    constructor(arr) {
-        this._arr = arr;
+    constructor(arr, cmp) {
+        this.arr = arr;
+        this.cmp = cmp;
 
         if(this.length > 0) {
-            this.buildMaxHeap();
+            this.build();
         }
     }
-
+    
     /**
      * @return the length of the inner array.
      */
     get length() {
-        return this._arr.length;
+        return this.arr.length;
     }
 
     /**
      * Sorts the inner array. 
      * 
-     * After this call it is guranteed that the inner array is not only a max heap.
+     * After this call it is guranteed that the inner array is not only a heap.
      * But the sequence of the elements are also in sorted order.
      * 
      * In place with Θ(1) space usage.
@@ -47,9 +50,9 @@ class MaxHeap {
      */
     sort() {
         /* 
-         * Assumes it meets the criteria of a max heap.
-         * Because of this we don't need to build the max heap.
-         * Otherwise: buildMaxHeap();
+         * Assumes it meets the criteria of a heap.
+         * Because of this we don't need to build the heap.
+         * Otherwise: build();
          */
 
          let sorted = [];
@@ -58,58 +61,59 @@ class MaxHeap {
           */
          for(let i = this.length; i >= 1; i--) {
              /* Place the highest element (first element) from the heap to the end of the sorted array */
-            sorted.push(this._arr.shift());
-            /* Ensure that the maxHeap properties are true after the removal of the root */
-            this.maxHeapify(0);
+            sorted.push(this.arr.shift());
+            /* Ensure that the heap properties are true after the removal of the root */
+            this.heapify(0);
          }
-         this._arr = sorted;
+         this.arr = sorted;
     }
 
     /**
-     * Builds the maxHeap by going from the bottom up and maxHeapify.
+     * Builds the heap by going from the bottom up and heapify.
      * 
      * Runs Θ(n), not O(n lg n).
      */
-    buildMaxHeap() {
+    build() {
         /* 
          * We can split the length by 2 because
          * the leafs always accounts for half the elements in the binary tree.
          */
         for(let i = Math.floor(this.length / 2); i >= 0; i--) {
-            this.maxHeapify(i);
+            this.heapify(i);
         }
     }
 
     /**
-     * float down the elements in the maxHeap does not meet the criterias starting from ith element.
+     * float down the elements in the heap does not meet the criterias starting from ith element.
      * Also known as float down.
      * 
-     * This does not ensure that the heap is a maxHeap. Use buildMaxHeap for that.
+     * This does not ensure that the heap is as defined by cmp. Use build for that.
      * Runs O(lg n).
      * 
      * @param {Number} i
      *        The index to start the heapifying.
      */
-    maxHeapify(i) {
+    heapify(i) {
         let l = this.leftChild(i);
         let r = this.rightChild(i);
-        let largest = i;
+        let toSwap = i;
 
         /* Checks if t is in the array and if it is larger than the element at largest (index) */
-        const checkIfLargest = (t) => t >= 0 & t < this.length && this.get(t) > this.get(largest);
+        // const shouldSwap = (t) => t >= 0 && t < this.length && this.get(t) > this.get(toSwap);
+        const shouldSwap = (t) => t >= 0 && t < this.length && this.cmp(this.get(t), this.get(toSwap));
 
         /* Check if any of the children are larger */
-        if(checkIfLargest(l)) {
-            largest = l;
+        if(shouldSwap(l)) {
+            toSwap = l;
         }
-        if(checkIfLargest(r)) {
-            largest = r;
+        if(shouldSwap(r)) {
+            toSwap = r;
         }
 
         /* If a child was found to be larger. Then swap them move down the tree */
-        if(largest != i) {
-            this._swapElements(i, largest);
-            this.maxHeapify(largest);
+        if(toSwap != i) {
+            this._swapElements(i, toSwap);
+            this.heapify(toSwap);
         }
     }
 
@@ -125,8 +129,8 @@ class MaxHeap {
      */
     _swapElements(i, j) {
         let temp = this.get(i);
-        this._arr[i] = this.get(j);
-        this._arr[j] = temp;
+        this.arr[i] = this.get(j);
+        this.arr[j] = temp;
     }
 
     /**
@@ -139,7 +143,7 @@ class MaxHeap {
      *        The element to add.
      */
     add(e) {
-        let i = this._arr.push(e) - 1;
+        let i = this.arr.push(e) - 1;
 
         /* 
          * Swap element with parent if the parent is greater.
@@ -148,7 +152,8 @@ class MaxHeap {
          */
         const floatUp = (j = i) => {
             let parent = this.parent(j);
-            if(parent >= 0 && e > this.get(parent)) {
+            // if(parent >= 0 && e > this.get(parent)) {
+                if(parent >= 0 && this.cmp(e, this.get(parent))) {
                 this._swapElements(j, parent);
                 floatUp(parent);
             }
@@ -168,9 +173,9 @@ class MaxHeap {
         /* Swap the greatest element (root) with one of the smallest */
         this._swapElements(0, this.length - 1);
         /* Use .pop becuase after the swap the root is the end element */
-        let root = this._arr.pop();
-        /* Since the current root is now a previously leaf we can just maxHeapify by the root. */
-        this.maxHeapify(0);
+        let root = this.arr.pop();
+        /* Since the current root is now a previously leaf we can just heapify by the root. */
+        this.heapify(0);
         return root;
     }
 
@@ -182,7 +187,7 @@ class MaxHeap {
      * @return the element at i.
      */
     get(i) {
-        return this._arr[i];
+        return this.arr[i];
     }
 
     /**
@@ -216,6 +221,11 @@ class MaxHeap {
      * @return The string representation of the inner array.
      */
     toString() {
-        return this._arr.toString();
+        return this.arr.toString();
     }
 }
+
+let arr = [1, 8, 3, -10, 5];
+let heap1 = new Heap(arr, (a, b) => a > b);
+heap1.sort();
+console.log(heap1);

@@ -37,6 +37,6 @@ function countingSort(arr, kNumbers) {
         sorted[counted[arr[i]] - 1] = arr[i];
         counted[arr[i]]--;
     }
-    
+
     return sorted;
 }

@@ -53,7 +53,7 @@ function quickSort(arr) {
             let pivot = arr[right];
             let i = left;
             /* Move through the sub array and create the partition */
-            for(let j = left; j <= right - 1; j++) {
+            for(let j = left; j < right; j++) {
                 if(arr[j] <= pivot) {
                     /* Move it down to the "smaller than" partition */
                     swap(i, j);
