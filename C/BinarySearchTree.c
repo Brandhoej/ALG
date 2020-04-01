@@ -1,22 +1,22 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+/* The structure of a node used with a Binary Search Tree (BST) */
 typedef struct Node {
     int key;
     struct Node *parent, *left, *right;
 } Node;
 
+/* The structure of a Binary Search Tree (BST) */
 typedef struct BST {
     Node *root;
 } BST;
 
-/* Construction functions of the Binary Search Tree (BST) and its node structure (Node) */
 /* Helper function for BST creation */
 BST* newBST(Node *root);
 /* Helpter function for BST Node creation */
 Node* newNode(int key);
 
-/* Freeing function for the BST and its node structure */
 /* Recursively frees the BST structure */
 void freeBST(BST *root);
 /* Recursively frees the children of the node */
@@ -24,15 +24,20 @@ void freeNodeStructure(Node *node);
 /* Frees the content of the node */
 void freeNode(Node *node);
 
-/* Functions for the BST */
 /* Prints the tree in order from left to right */
 void inorderTreeWalk(Node *node);
-/*  */
+/* Traverses the tree in order from the smallest key to the largest. The action is performed with each node in same order. */
+void inorderTreeTraversal(Node *node, void (*action)(Node*));
+/* Prints a node key by using printf */
+void printNode(Node *node);
+/* Recursively insert a node into the in the tree with the root */
 void bstRecInsert(Node *root, Node *node);
-/*  */
+/* Iteratively insert a node into the in the tree with the root */
 void bstIteInsert(BST *bst, Node *node);
-/*  */
-void bstDeleteNode(BST *tree ,Node *node);
+/* Deletes/Removes a node from a tree */
+void bstDeleteNode(BST *tree, Node *node);
+/* Deletes/Removes a key from a tree */
+void bstRemoveKey(BST *tree, int key);
 /* Replaces the root with the replacement node */
 void bstTransplant(BST *tree, Node *root, Node *replacement);
 /* Recursively seraches for a key in the BST */
@@ -43,16 +48,20 @@ Node *bstIteSearch(Node *node, int key);
 Node *bstMinimum(Node *node);
 /* Finds and returns the node with the highest key value */
 Node *bstMaximum(Node *node);
-/*  */
+/* Returns the node with the smallest key greater than the key of input node */
 Node *bstSuccessor(Node *node);
-/*  */
+/* the node with the greatest key smaller than the key of input node */
 Node *bstPredecessor(Node *node);
-
+/* Returns TRUE (!0) if the bst is a valid bst */
+void isValidBST(Node *node);
+/* Checks if the root of the tree and its childrens is inside the range of min and max. Returns TRUE if so. */
+int isValidBSTHelper(Node *node, int min, int max);
 
 int main(int amount, char** input) {
     Node *root = newNode(15);
     BST *tree = newBST(root);
 
+    /* Tests */
     bstRecInsert(tree->root, newNode(6));
     bstRecInsert(tree->root, newNode(18));
     bstRecInsert(tree->root, newNode(3));
@@ -64,7 +73,7 @@ int main(int amount, char** input) {
     bstRecInsert(tree->root, newNode(13));
     bstRecInsert(tree->root, newNode(9));
 
-    printf("\n");
+    printf("Tree walk as from the ALG BST slides from left to right and from bottom to up\n");
     printf("%2i\n", tree->root->left->key);
     printf("%2i\n", tree->root->left->left->key);
     printf("%2i\n", tree->root->left->left->left->key);
@@ -77,6 +86,9 @@ int main(int amount, char** input) {
     printf("%2i\n", tree->root->right->right->key);
     printf("\n");
 
+    printf("Inorder tree walk (BST)\n");
+    inorderTreeWalk(tree->root);
+    printf("\n");
     printf("Successor of  6 :: %-2i\n", bstSuccessor(bstRecSearch(tree->root, 6))->key);
     printf("Successor of 13 :: %-2i\n", bstSuccessor(bstRecSearch(tree->root, 13))->key);
     printf("Predecessor of  6 :: %-2i\n", bstPredecessor(bstRecSearch(tree->root, 6))->key);
@@ -86,17 +98,16 @@ int main(int amount, char** input) {
     printf("Inorder tree walk (BST)\n");
     inorderTreeWalk(tree->root);
     printf("\n");
-    printf("\n");
-
-    printf("BST searches (rec. and ite.)\n");
-    printf("%i\n", bstRecSearch(tree->root, 13)->key);
-    printf("%i\n", bstIteSearch(tree->root, 13)->key);
-    printf("%i\n", bstRecSearch(tree->root, 20)->key);
-    printf("%i\n", bstIteSearch(tree->root, 20)->key);
+    printf("BST searches recursive (Rec) and iterative (Ite)\n");
+    printf("Rec. %i\n", bstRecSearch(tree->root, 13)->key);
+    printf("Ite. %i\n", bstIteSearch(tree->root, 13)->key);
+    printf("Rec. %i\n", bstRecSearch(tree->root, 20)->key);
+    printf("Ite. %i\n", bstIteSearch(tree->root, 20)->key);
     printf("\n");
 
     printf("Deleting node key 20\n");
     bstDeleteNode(tree, bstRecSearch(tree->root, 20));
+    printf("Inorder tree walk (BST)\n");
     inorderTreeWalk(tree->root);
     printf("\n");
     printf("Node key 20 %s\n", bstRecSearch(tree->root, 20) == NULL ? "NOT FOUND" : "FOUND");
@@ -105,6 +116,7 @@ int main(int amount, char** input) {
 
     printf("Deleting node key 3\n");
     bstDeleteNode(tree, bstRecSearch(tree->root, 3));
+    printf("Inorder tree walk (BST)\n");
     inorderTreeWalk(tree->root);
     printf("\n");
     printf("Node key 3 %s\n", bstRecSearch(tree->root, 3) == NULL ? "NOT FOUND" : "FOUND");
@@ -114,6 +126,8 @@ int main(int amount, char** input) {
     printf("BST min/max nodes\n");
     printf("Min of the tree :: %i\n", bstMinimum(tree->root)->key);
     printf("Max of the tree :: %i\n", bstMaximum(tree->root)->key);
+
+    /* END TESTS */
 
     freeBST(tree);
 
@@ -155,14 +169,23 @@ void freeNode(Node *node) {
 }
 
 void inorderTreeWalk(Node *node) {
+    inorderTreeTraversal(node, printNode);
+}
+
+void inorderTreeTraversal(Node *node, void (*action)(Node*)) {
     if(node != NULL) {
-        inorderTreeWalk(node->left);
-        printf(" %i ", node->key);
-        inorderTreeWalk(node->right);
+        inorderTreeTraversal(node->left, action);
+        action(node);
+        inorderTreeTraversal(node->right, action);
     }
 }
 
+void printNode(Node *node) {
+    printf("%i\n", node->key);
+}
+
 void bstRecInsert(Node *root, Node *node) {
+    /* Inserts the node as a new leaf */
     if(root == NULL) {
         root = node;
     } else if(node->key < root->key) {
@@ -183,8 +206,10 @@ void bstRecInsert(Node *root, Node *node) {
 }
 
 void bstIteInsert(BST *bst, Node *node) {
+    /* Inserts the node as a new leaf */
     Node *curr = NULL,
          *parent = bst->root;
+    /* Find the parent to the leaf to set (from NULL) */
     while(parent != NULL) {
         curr = parent;
         if(node->key < parent->key) {
@@ -193,6 +218,7 @@ void bstIteInsert(BST *bst, Node *node) {
             parent = parent->right;
         }
     }
+    /* Place the node on the correct child of the parent node */
     node->parent = curr;
     if(curr == NULL) {
         bst->root = node;
@@ -201,6 +227,11 @@ void bstIteInsert(BST *bst, Node *node) {
     } else {
         curr->right = node;
     }
+}
+
+void bstRemoveKey(BST *tree, int key) {
+    /* Can be changes to the Iteratively bst search */
+    bstDeleteNode(tree, bstRecSearch(tree->root, key));
 }
 
 void bstDeleteNode(BST *tree, Node *node) {
@@ -256,6 +287,7 @@ Node *bstIteSearch(Node *node, int key) {
 }
 
 Node *bstMinimum(Node *node) {
+    /* The key of the left child is always less than the parent's and leafs are NULL */
     while(node->left != NULL) {
         node = node->left;
     }
@@ -263,6 +295,7 @@ Node *bstMinimum(Node *node) {
 }
 
 Node *bstMaximum(Node *node) {
+    /* The key of the right child is always greater than the parent's and leafs are NULL  */
     while(node->right != NULL) {
         node = node->right;
     }
@@ -271,11 +304,13 @@ Node *bstMaximum(Node *node) {
 
 Node *bstSuccessor(Node *node) {
     if(node->right != NULL) {
+        /* Since the key of the right child is always greater than the parent then the minimum of the sub-tree must be the Successor */
         return bstMinimum(node->right);
     } else {
         Node *curr = node->parent;
-        while (curr != NULL && node == curr->right)
-        {
+        while (curr != NULL && node == curr->right) {
+            /* The node is not the root of the tree
+             * The Successor must then be the first node where the node is not in the right sub-tree */
             node = curr;
             curr = curr->parent;
         }
@@ -285,14 +320,36 @@ Node *bstSuccessor(Node *node) {
 
 Node *bstPredecessor(Node *node) {
     if(node->left != NULL) {
+        /* Since the key of the left child is always less than the parent then the minimum of the sub-tree must be the Successor */
         return bstMinimum(node->left);
     } else {
         Node *curr = node->parent;
-        while (curr != NULL && node == curr->left)
-        {
+        while (curr != NULL && node == curr->left) {
+            /* The node is not the root of the tree
+             * The Successor must then be the first node where the node is not in the right left-tree */
             node = curr;
             curr = curr->parent;
         }
         return curr;
     }
+}
+
+void isValidBST(Node *node) {
+    /* BST property: The left child of x has a key less than x's whilst the right child key is greater than x's */
+    return isValidBST(node, node->key - 1, node->key + 1);
+}
+
+int isValidBSTHelper(Node *node, int min, int max) {
+    if(node == NULL) {
+        return 1;
+    }
+
+    if(node->key <= min || node->key >= max) {
+        return 0;
+    }
+
+    /* The bounds of min and max +-1 because all values in a BST are distinct and the bounds are including when comparing 
+     * Bounds are used for some trees where you can get false positives because insertion was not done correctly */
+    return isValidBSTHelper(node->left,  min, node->key - 1) &&
+           isValidBSTHelper(node->right, node->key + 1, max);
 }
