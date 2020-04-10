@@ -5,7 +5,7 @@ This repo. is a collection of personal exploration. The main focus is on algorit
 [`Merge sort`](https://github.com/Brandhoej/ALG/blob/master/JS/MergeSort.js), [`binary search`](https://github.com/Brandhoej/ALG/blob/master/JS/BinarySearch.js), [`counting sort`](https://github.com/Brandhoej/ALG/blob/master/JS/CountingSort.js), [`quick sort`](https://github.com/Brandhoej/ALG/blob/master/JS/QuickSort.js), [`insertion sort`](https://github.com/Brandhoej/ALG/blob/master/JS/InsertionSort.js), bucket sort*, topological sorting*, radix sort*.  
 
 ## Searching
-Breadth-first search*, depth-first search*.  
+Breadth-first search*, depth-first search*, a star*.  
 
 ## Dynamic programming
 Viterbi algorithm*.  
